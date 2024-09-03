@@ -43,6 +43,74 @@ class R1_API_calls:
         auth = {'Authorization': 'Bearer {}'.format(jwt)}
         r = requests.get(url, verify=False, headers=auth).json()
         return r
+    
+    def getBrandDetails(self, host, jwt):
+        """Get the tenant details."""
+        url = "https://" + host + "/mspLabels"
+        auth = {'Authorization': 'Bearer {}'.format(jwt)}
+        r = requests.get(url, verify=False, headers=auth).json()
+        return r
+    
+    def getBrandAdmins(self, host, jwt):
+        """Get the tenant details."""
+        url = "https://" + host + "/tenants/self?deep=true"
+        auth = {'Authorization': 'Bearer {}'.format(jwt)}
+        r = requests.get(url, verify=False, headers=auth).json()
+        return r
+
+    def getMspECs(self, host, tenantID, jwt):
+        """Get tall msp customers."""
+        url = "https://" + host + "/mspCustomers"
+        reqHeaders = {'Authorization': 'Bearer {}'.format(jwt),
+                      'Content-Type': 'application/json'}
+        r = requests.get(url, verify=False, headers=reqHeaders).json()
+        return r
+    
+    def getMspTechs(self, host, jwt):
+        """Get all MSP and Tech partners."""
+        url = "https://" + host + "/mspCustomers"
+        reqHeaders = {'Authorization': 'Bearer {}'.format(jwt),
+                      'Content-Type': 'application/json'}
+        r = requests.get(url, verify=False, headers=reqHeaders).json()
+        return r
+    
+    def getProperties(self, host, jwt):
+        """Get brand properties."""
+        url = "https://" + host + "/mspecs/query"
+        body = {
+                "searchString": "",
+                "filters": {
+                    "tenantType": [
+                        "MSP_REC"
+                    ]
+                },
+                "fields": [
+                    "id",
+                    "name",
+                    "tenantType",
+                    "status",
+                    "alarmCount",
+                    "mspAdminCount",
+                    "mspEcAdminCount",
+                    "creationDate",
+                    "expirationDate",
+                    "wifiLicense",
+                    "streetAddress"
+                ],
+                "searchTargetFields": [
+                    "name"
+                ],
+                "page": 1,
+                "pageSize": 10,
+                "defaultPageSize": 10,
+                "total": 0,
+                "sortField": "name",
+                "sortOrder": "ASC"
+            }
+        reqHeaders = {'Authorization': 'Bearer {}'.format(jwt),
+                      'Content-Type': 'application/json'}
+        r = requests.post(url, verify=False, headers=reqHeaders, json=body).json()
+        return r
 
     def getVenues(self, host, tenantID, jwt):
         """Get all venues."""
@@ -52,14 +120,143 @@ class R1_API_calls:
         r = requests.get(url, verify=False, headers=reqHeaders).json()
         return r
 
-    def getMspECs(self, host, tenantID, jwt):
-        """Get tall msp customers."""
-        url = "https://" + host + "/mspCustomers"
-        # auth = {'Authorization': 'Bearer {}'.format(jwt)}
+    def getVenueById(self, host, tenantID, venueId, jwt):
+        """Get venue with provided Id."""
+        url = "https://" + host + "/venues"
         reqHeaders = {'Authorization': 'Bearer {}'.format(jwt),
-                      'Content-Type': 'application/json'}
+                      'x-rks-tenantid': tenantID}
         r = requests.get(url, verify=False, headers=reqHeaders).json()
-        # print(r)
+        for item in r:
+            if item['id'] == venueId:
+                return item['name']
+        return 'not found'
+
+    def getAPs(self, host, tenantID, jwt):
+        """Get all APs."""
+        url = "https://" + host + "/venues/aps"
+        reqHeaders = {'Authorization': 'Bearer {}'.format(jwt),
+                      'x-rks-tenantid': tenantID}
+        r = requests.get(url, verify=False, headers=reqHeaders).json()
+        return r
+    
+    def getAPsByVenueId(self, host, tenantID, venueID, jwt):
+        """Get all APs in a venue."""
+        url = "https://" + host + "/venues/aps"
+        reqHeaders = {'Authorization': 'Bearer {}'.format(jwt),
+                      'x-rks-tenantid': tenantID}
+        r = requests.get(url, verify=False, headers=reqHeaders).json()
+        apList = []
+        for item in r:
+            if item['venueId'] == venueID:
+                apList.append(item)             
+        return apList
+    
+    def getNetworks(self, host, tenantID, jwt):
+        """Get all networks."""
+        url = "https://" + host + "/networks"
+        reqHeaders = {'Authorization': 'Bearer {}'.format(jwt),
+                      'x-rks-tenantid': tenantID}
+        r = requests.get(url, verify=False, headers=reqHeaders).json()
+        return r
+
+    def getNetworkDetails(self, host, tenantID, networkID, jwt):
+        """Get network details."""
+        url = "https://" + host + "/networks/" + networkID + "?deep=true"
+        reqHeaders = {'Authorization': 'Bearer {}'.format(jwt),
+                      'x-rks-tenantid': tenantID}
+        r = requests.get(url, verify=False, headers=reqHeaders).json()
+        return r
+
+    def getClients(self, host, tenantID, jwt):
+        """Get clients."""
+        url = "https://" + host + "/clients"
+        reqHeaders = {'Authorization': 'Bearer {}'.format(jwt),
+                      'x-rks-tenantid': tenantID}
+        r = requests.get(url, verify=False, headers=reqHeaders).json()
+        return r
+    
+    def getClientSessions(self, host, tenantID, clientMac, fromTime, 
+                          toTime, jwt):
+        """List client sessions."""
+        url = "https://" + host + "/reports/clients/sessionHistories"
+        body = {
+            "filters": {
+                "clientMAC": [
+                    clientMac
+                ],
+                "fromTime": fromTime,
+                "toTime": toTime
+            }
+        }
+        reqHeaders = {'Authorization': 'Bearer {}'.format(jwt), 
+                      'x-rks-tenantid': tenantID, 
+                      'Content-Type': 'application/json'}
+        r = requests.post(url, verify=False, headers=reqHeaders, 
+                          json=body).json()
+        return r
+    
+    def getEvents(self, host, tenantID, jwt):
+        """List events."""
+        url = "https://" + host + "/events/query"
+        body = {
+                "fields": [
+                    "event_datetime",
+                    "severity",
+                    "entity_type",
+                    "product",
+                    "entity_id",
+                    "message",
+                    "dpName",
+                    "apMac",
+                    "clientMac",
+                    "macAddress",
+                    "apName",
+                    "switchName",
+                    "serialNumber",
+                    "networkName",
+                    "networkId",
+                    "ssid",
+                    "radio",
+                    "raw_event",
+                    "sourceType",
+                    "adminName",
+                    "clientName",
+                    "userName",
+                    "hostname",
+                    "adminEmail",
+                    "administratorEmail",
+                    "venueName",
+                    "venueId",
+                    "apGroupId",
+                    "apGroupName",
+                    "floorPlanName",
+                    "recipientName",
+                    "transactionId",
+                    "name",
+                    "ipAddress",
+                    "detailedDescription",
+                    "Persona-ID"
+                ],
+                "page": 1,
+                "pageSize": 300,
+                "sortField": "event_datetime",
+                "sortOrder": "DESC",
+                "filters": {
+                    "entity_type": [
+                        "AP",
+                        "SECURITY",
+                        "CLIENT",
+                        "SWITCH",
+                        "NETWORK",
+                        "EDGE"
+                    ]
+                }
+            }
+        reqHeaders = {'Authorization': 'Bearer {}'.format(jwt), 
+                      'x-rks-tenantid': tenantID,
+                      'Content-Type': 'application/json'}
+        r = requests.post(url, verify=False, headers=reqHeaders, 
+                          json=body).json()
         return r
 
     def configure_802_11k(self, host, enableNeighborReport, jwt):
