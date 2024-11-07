@@ -12,3 +12,5 @@ Python scripts examples for RUCKUS One.
 **R1_API** is the module with all the API calls used in the examples above.
 
 **R1_WISPr_Portal** is a simple captive portal using Flask as the web server, and the WISPr interface to send an authentication request to RUCKUS One. You need to edit the integration key and the host IP address. Create a folder named templates at the same level as where the python script is located, and copy the file wisprPortal.html to that folder. The tenantID, client's MAC and IP addresses are fetched from the session by the python script. The username and password are entered in the portal by the user.
+
+**R1_LBS** is a script to decode MQTT messages coming from the pre-engine API in RUCKUS One. That API provides RSSI and SNR information for all client devices that are heard by the RUCKUS One APs, when the venue is configured with a LBS profile.
