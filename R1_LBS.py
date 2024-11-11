@@ -54,13 +54,10 @@ client.publish("3.0/LOC/lbstest/LS/MGQ",payload, 2)
 payload = struct.pack('bb', 1,7) #get venues
 client.publish("3.0/LOC/lbstest/LS/MGQ",payload, 2)
 
-payload = struct.pack('bbbbbbbbbbb',3,1,0,7,10,0,10,1,0,0,0) #send PAQ request for 2.4 GHz radio
+payload = struct.pack('bbbbbBBbbbb',3,1,0,7,6,0x05,0xa0,1,0,0,0) #send PAQ request for 2.4 GHz radio
 client.publish("3.0/LOC/lbstest/LS/PAQ",payload, 2)
 
-payload = struct.pack('bbbbbbbbbbb',3,1,0,7,10,0,10,2,0,0,0) #send PAQ request for 5 GHz radio
-client.publish("3.0/LOC/lbstest/LS/PAQ",payload, 2)
-
-payload = struct.pack('bbbbbbbbbbb',3,1,0,7,10,0,10,3,0,0,0) #send PAQ request for both radios
+payload = struct.pack('bbbbbBBbbbb',3,1,0,7,6,0x05,0xa0,2,0,0,0) #send PAQ request for 5 GHz radio
 client.publish("3.0/LOC/lbstest/LS/PAQ",payload, 2)
 
 client.loop_forever() #starts a thread on the mqtt client which reads the message buffers forever
